@@ -29,10 +29,29 @@ tags:
 
 ## 环境配置
 
-使用前需要设置环境变量 `ARK_API_KEY`：
+### 方式1: 配置文件（推荐）
+
+创建配置文件 `~/.openclaw/skills-config/seedream/config.json`：
+
+```bash
+mkdir -p ~/.openclaw/skills-config/seedream
+cat > ~/.openclaw/skills-config/seedream/config.json << 'EOF'
+{
+  "api_key": "your-api-key-here"
+}
+EOF
+```
+
+### 方式2: 环境变量
 
 ```bash
 export ARK_API_KEY="your-api-key-here"
+```
+
+### 方式3: 命令行参数
+
+```bash
+python3 .claude/skills/seedream/scripts/seedream.py -k "your-api-key-here" -p "生成一张图片"
 ```
 
 ## 使用方式

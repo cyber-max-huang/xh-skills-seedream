@@ -77,6 +77,31 @@ python3 ~/openclaw-skill-seedream/.claude/skills/seedream/scripts/seedream.py -p
 - 火山引擎 API Key
 - 安装依赖：`pip3 install volcengine-python-sdk[ark]`
 
+## 配置 API Key
+
+### 方式1: 配置文件（推荐）
+
+```bash
+mkdir -p ~/.openclaw/skills-config/seedream
+cat > ~/.openclaw/skills-config/seedream/config.json << 'EOF'
+{
+  "api_key": "your-api-key-here"
+}
+EOF
+```
+
+### 方式2: 环境变量
+
+```bash
+export ARK_API_KEY="your-api-key-here"
+```
+
+### 方式3: 命令行参数
+
+```bash
+python3 seedream.py -k "your-api-key" -p "生成一张图片"
+```
+
 ## 获取 API Key
 
 1. 访问[火山引擎控制台](https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey)

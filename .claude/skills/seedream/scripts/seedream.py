@@ -5,9 +5,11 @@ Seedream 图片生成 CLI 工具
 """
 import os
 import sys
+import json
 import argparse
 import time
 from datetime import datetime
+from pathlib import Path
 
 # 添加当前目录到路径，以便导入 seedream-api
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -34,6 +36,21 @@ SIZES = {
     "4.5": ["2K", "4K", "1024x1024", "2048x2048"],
     "4.0": ["1K", "2K", "4K", "1024x1024"],
 }
+
+# 配置文件路径
+CONFIG_DIR = Path.home() / ".openclaw" / "skills-config" / "seedream"
+CONFIG_FILE = CONFIG_DIR / "config.json"
+
+
+def load_config() -> dict:
+    """从配置文件加载 API Key"""
+    if CONFIG_FILE.exists():
+        try:
+            with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {}
 
 
 def get_model_id(model_alias: str) -> str:
@@ -223,10 +240,15 @@ def main():
     
     args = parser.parse_args()
     
-    # 获取 API Key
-    api_key = args.api_key or os.getenv("ARK_API_KEY")
+    # 获取 API Key (优先级: 命令行参数 > 配置文件 > 环境变量)
+    config = load_config()
+    api_key = args.api_key or config.get("api_key") or os.getenv("ARK_API_KEY")
     if not api_key:
-        print("错误: 请通过 --api-key 参数或设置 ARK_API_KEY 环境变量提供 API Key")
+        print("错误: 请提供 API Key")
+        print(f"方式1: 创建配置文件 {CONFIG_FILE}")
+        print('  {"api_key": "your-api-key-here"}')
+        print("方式2: 设置环境变量 export ARK_API_KEY=your-api-key")
+        print("方式3: 命令行参数 --api-key your-api-key")
         print("\n获取 API Key: https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey")
         sys.exit(1)
     
