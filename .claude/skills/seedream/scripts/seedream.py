@@ -38,19 +38,24 @@ SIZES = {
 }
 
 # 配置文件路径
-CONFIG_DIR = Path.home() / ".openclaw" / "skills-config" / "seedream"
-CONFIG_FILE = CONFIG_DIR / "config.json"
+ENV_FILE = Path.home() / ".openclaw" / ".env"
 
 
-def load_config() -> dict:
-    """从配置文件加载 API Key"""
-    if CONFIG_FILE.exists():
+def load_env_file() -> dict:
+    """从 ~/.openclaw/.env 文件加载环境变量"""
+    env_vars = {}
+    if ENV_FILE.exists():
         try:
-            with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
+            with open(ENV_FILE, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        if "=" in line:
+                            key, value = line.split("=", 1)
+                            env_vars[key.strip()] = value.strip().strip('"').strip("'")
         except Exception:
             pass
-    return {}
+    return env_vars
 
 
 def get_model_id(model_alias: str) -> str:
@@ -240,15 +245,17 @@ def main():
     
     args = parser.parse_args()
     
-    # 获取 API Key (优先级: 命令行参数 > 配置文件 > 环境变量)
-    config = load_config()
-    api_key = args.api_key or config.get("api_key") or os.getenv("ARK_API_KEY")
+    # 获取 API Key (优先级: 命令行参数 > .env 文件 > 环境变量)
+    env_vars = load_env_file()
+    api_key = args.api_key or env_vars.get("ARK_API_KEY") or os.getenv("ARK_API_KEY")
     if not api_key:
         print("错误: 请提供 API Key")
-        print(f"方式1: 创建配置文件 {CONFIG_FILE}")
-        print('  {"api_key": "your-api-key-here"}')
-        print("方式2: 设置环境变量 export ARK_API_KEY=your-api-key")
-        print("方式3: 命令行参数 --api-key your-api-key")
+        print("\n方式1: 编辑 ~/.openclaw/.env 文件添加:")
+        print('  ARK_API_KEY=your-api-key-here')
+        print("\n方式2: 设置环境变量:")
+        print("  export ARK_API_KEY=your-api-key")
+        print("\n方式3: 命令行参数:")
+        print("  --api-key your-api-key")
         print("\n获取 API Key: https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey")
         sys.exit(1)
     

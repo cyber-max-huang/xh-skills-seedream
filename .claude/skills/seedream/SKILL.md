@@ -29,17 +29,19 @@ tags:
 
 ## 环境配置
 
-### 方式1: 配置文件（推荐）
+### 方式1: .env 文件（推荐）
 
-创建配置文件 `~/.openclaw/skills-config/seedream/config.json`：
+编辑 `~/.openclaw/.env` 文件，添加：
+
+```
+ARK_API_KEY=your-api-key-here
+```
+
+如果没有 `.env` 文件，创建一个：
 
 ```bash
-mkdir -p ~/.openclaw/skills-config/seedream
-cat > ~/.openclaw/skills-config/seedream/config.json << 'EOF'
-{
-  "api_key": "your-api-key-here"
-}
-EOF
+touch ~/.openclaw/.env
+echo 'ARK_API_KEY=your-api-key-here' >> ~/.openclaw/.env
 ```
 
 ### 方式2: 环境变量
