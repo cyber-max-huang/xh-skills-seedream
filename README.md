@@ -1,143 +1,116 @@
-# Seedream 图片生成 Skill
+# xh-seedream-gen-image
 
-基于火山引擎方舟大模型服务平台的 Seedream 图片生成 API 的 OpenClaw/Claude Code Skill。
+适用于 OpenClaw 的 Seedream 图片生成技能，支持：
 
-## 功能
+- 文生图
+- 图生图（单图 / 多图）
+- 组图生成（Sequential）
+- 联网搜索（仅 `5.0-lite`）
 
-- ✅ 文生图 (Text to Image)
-- ✅ 图生图 (Image to Image) - 单图输入
-- ✅ 多图融合 (Multi-image to Image) - 多图输入
-- ✅ 组图生成 (Sequential Image Generation)
-- ✅ 联网搜索 (Web Search) - 仅 5.0 lite
+技能名固定为：`xh-seedream-gen-image`。
 
-## 安装
+## 1) 通过 npx-skill 安装
 
-### 方式一：使用 npx skills add（推荐）
-
-```bash
-npx skills add cyber-max-huang/openclaw-skill-seedream
-```
-
-### 方式二：手动安装
+> 将下面地址替换为你的仓库地址（示例使用 GitHub）。
 
 ```bash
-# 1. 克隆仓库
-git clone https://github.com/cyber-max-huang/openclaw-skill-seedream.git ~/openclaw-skill-seedream
-
-# 2. 配置 OpenClaw
-# 编辑 ~/.openclaw/openclaw.json，添加：
+npx-skill add github:<your-org-or-user>/xh-seedream-gen-image
 ```
 
-```json
-{
-  "skills": {
-    "load": {
-      "extraDirs": ["~/openclaw-skill-seedream"]
-    }
-  }
-}
-```
-
-### 方式三：作为插件安装
-
-在 Claude Code / OpenClaw 中告诉 AI：
-
-> 请帮我安装 github.com/cyber-max-huang/openclaw-skill-seedream
-
-## 使用
-
-### 直接告诉 AI
-
-只需告诉 AI 你想生成什么图片，例如：
-- "帮我生成一只可爱的橘猫图片"
-- "生成一张科技感的城市夜景"
-- "制作一张北京天气预报图"
-
-AI 会自动调用 Seedream API 生成图片。
-
-### 命令行使用
+如果你的 `npx-skill` 版本使用的是 `install` 子命令，可用：
 
 ```bash
-# 设置 API Key
-export ARK_API_KEY="your-api-key"
+npx-skill install github:<your-org-or-user>/xh-seedream-gen-image
+```
 
+安装后应能看到技能元信息文件：`SKILL.md`（在技能根目录）。
+
+## 2) 配置 API Key（必须在 .env 提供）
+
+请在 `.env` 文件中提供 `ARK_API_KEY`，推荐放在技能根目录：
+
+```bash
+ARK_API_KEY=your-volcengine-ark-api-key
+```
+
+脚本读取优先级：
+
+1. 命令行参数 `--api-key`
+2. `<skill根目录>/.env`
+3. `~/.openclaw/.env`
+4. `~/.claude/.env`
+5. 环境变量 `ARK_API_KEY`
+
+可复制模板：
+
+```bash
+cp .env.example .env
+```
+
+## 3) 安装依赖
+
+```bash
+pip install -r requirements.txt
+```
+
+## 4) 使用方式
+
+### 在 OpenClaw/Claude Code 中直接说
+
+- 帮我生成一张赛博朋克城市海报
+- 参考这张图，改成水彩插画风格
+- 生成 4 张连贯的四季场景图
+
+### 命令行调试
+
+```bash
 # 文生图
-python3 ~/openclaw-skill-seedream/.claude/skills/seedream/scripts/seedream.py -p "一只可爱的猫"
+python3 scripts/seedream.py -p "一只可爱的橘猫"
 
-# 图生图
-python3 ~/openclaw-skill-seedream/.claude/skills/seedream/scripts/seedream.py -p "转为水彩画" -i "input.png"
+# 图生图（支持重复 -i）
+python3 scripts/seedream.py -p "改成水彩风格" -i "https://example.com/input.png"
 
 # 组图
-python3 ~/openclaw-skill-seedream/.claude/skills/seedream/scripts/seedream.py -p "四季风景" --sequential --max-images 4
+python3 scripts/seedream.py -p "四季风景插画" --sequential --max-images 4
+
+# 联网搜索（仅 5.0-lite）
+python3 scripts/seedream.py -p "北京今日天气信息图，扁平风格" --web-search
 ```
 
-## 前置要求
+## 参数说明
 
-- Python 3.9+
-- 火山引擎 API Key
-- 安装依赖：`pip3 install volcengine-python-sdk[ark]`
+| 参数 | 简写 | 说明 | 默认值 |
+|---|---|---|---|
+| `--prompt` | `-p` | 图片提示词（必填） | - |
+| `--model` | `-m` | `5.0-lite` / `4.5` / `4.0` | `5.0-lite` |
+| `--image` | `-i` | 输入图片 URL，可重复 | - |
+| `--size` | `-s` | 图像尺寸 | `2K` |
+| `--output-format` | `-f` | `png` / `jpeg` | 模型自动选择 |
+| `--sequential` | `-S` | 启用组图 | `false` |
+| `--max-images` | - | 组图最大数量 | `4` |
+| `--web-search` | - | 启用联网搜索 | `false` |
+| `--output` | `-o` | 输出目录 | `~/Downloads` |
+| `--proxy` | `-x` | HTTP 代理 | - |
 
-## 配置 API Key
+## 获取 ARK API Key
 
-### 方式1: .env 文件（推荐）
-
-编辑 `~/.openclaw/.env` 文件，添加：
-
-```
-ARK_API_KEY=your-api-key-here
-```
-
-如果没有 `.env` 文件，创建一个：
-
-```bash
-touch ~/.openclaw/.env
-echo 'ARK_API_KEY=your-api-key-here' >> ~/.openclaw/.env
-```
-
-### 方式2: 环境变量
-
-```bash
-export ARK_API_KEY="your-api-key-here"
-```
-
-### 方式3: 命令行参数
-
-```bash
-python3 seedream.py -k "your-api-key" -p "生成一张图片"
-```
-
-## 获取 API Key
-
-1. 访问[火山引擎控制台](https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey)
+1. 打开 [火山引擎方舟 API Key 页面](https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey)
 2. 创建 API Key
-3. 开通 Seedream 模型服务
-
-## 支持的模型
-
-| 模型 | 别名 | 支持功能 |
-|------|------|----------|
-| Seedream 5.0 lite | 5.0-lite | 文生图、图生图、组图、联网搜索、png输出 |
-| Seedream 4.5 | 4.5 | 文生图、图生图、组图、jpeg输出 |
-| Seedream 4.0 | 4.0 | 文生图、图生图、组图、jpeg输出 |
+3. 确认已开通 Seedream 对应模型
 
 ## 项目结构
 
-```
-openclaw-skill-seedream/
-├── .claude/
-│   └── skills/
-│       └── seedream/
-│           ├── SKILL.md      # Skill 定义文件
-│           └── scripts/
-│               └── seedream.py  # CLI 工具
+```text
+xh-seedream-gen-image/
+├── SKILL.md
+├── scripts/
+│   └── seedream.py
+├── .env.example
+├── requirements.txt
 ├── README.md
-└── CHANGELOG.md
+└── .claude/skills/seedream/   # 旧路径兼容
 ```
-
-## 版本历史
-
-See [CHANGELOG.md](./CHANGELOG.md)
 
 ## 许可证
 
-MIT License
+MIT
