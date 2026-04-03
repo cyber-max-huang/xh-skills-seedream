@@ -1,7 +1,6 @@
 ---
 name: xh-seedream-gen-image
-description: Seedream 图片生成 - 火山引擎方舟大模型服务平台图片生成 API。支持文生图、图生图、多图融合、组图生成等多种模式。
-homepage: https://www.volcengine.com/docs/82379/1541523
+description: 使用火山引擎方舟 Seedream 生成图片，支持文生图、图生图、组图与联网搜索；默认模型为 `5.0-lite`，可手动切换到 `4.5/4.0`。
 emoji: 🎨
 tags:
   - image-generation
@@ -77,7 +76,7 @@ python3 scripts/seedream.py -p "一只可爱的橘猫"
 常用参数：
 
 - `-p, --prompt`：提示词（必填）
-- `-m, --model`：`5.0-lite` / `4.5` / `4.0`
+- `-m, --model`：模型选择；默认 `5.0-lite`，可选 `4.5` / `4.0`
 - `-i, --image`：输入图片 URL（可重复传入多张）
 - `--sequential --max-images 4`：启用组图
 - `--web-search`：启用联网搜索（推荐用于实时信息图）
@@ -152,6 +151,14 @@ python3 scripts/seedream.py -p "北京今日天气预报，现代扁平化风格
 
 - 生成的图片保存在指定输出目录 (默认 ~/Downloads)
 - 文件名格式: `seedream_{timestamp}_{index}.{ext}`
+
+## 失败处理与模型切换建议
+
+当调用 `scripts/seedream.py` 生成图片失败时：
+
+1. 立刻把失败原因原样告知用户（例如：API 报错信息、网络/鉴权错误、参数不支持等）。
+2. 明确建议用户尝试更换其他模型（通常建议 `4.5` 或 `4.0`，具体取决于失败原因）。
+3. 主动询问用户是否希望我按 `4.5` 或 `4.0` 重新生成。
 
 ## 依赖
 
